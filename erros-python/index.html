@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Debug Challenge</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f5f7fa;
+            --text-color: #333;
+            --card-bg: #ffffff;
+            --border-color: #ddd;
+            --primary-color: #4a6fa5;
+            --secondary-color: #6d9dc5;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+            --code-bg: #f8f9fa;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-theme {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-bg: #1e1e1e;
+            --border-color: #333;
+            --primary-color: #6d9dc5;
+            --secondary-color: #4a6fa5;
+            --success-color: #66bb6a;
+            --error-color: #f44336;
+            --code-bg: #2d2d2d;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            width: 100%;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1.5rem;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--border-color);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px var(--shadow);
+        }
+
+        .level-indicator {
+            display: flex;
+            align-items: center;
+        }
+
+        .level-dots {
+            display: flex;
+            gap: 8px;
+            margin-left: 10px;
+        }
+
+        .level-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+        }
+
+        .level-dot.active {
+            background-color: var(--primary-color);
+        }
+
+        .level-dot.completed {
+            background-color: var(--success-color);
+        }
+
+        .game-area {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 6px var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .problem-description {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--code-bg);
+            border-left: 4px solid var(--secondary-color);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .editor-container {
+            margin-bottom: 25px;
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .editor-header h3 {
+            font-size: 1.2rem;
+        }
+
+        .reset-btn {
+            background-color: transparent;
+            color: var(--secondary-color);
+            border: 1px solid var(--secondary-color);
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .reset-btn:hover {
+            background-color: var(--secondary-color);
+            color: var(--card-bg);
+        }
+
+        .code-editor {
+            width: 100%;
+            min-height: 250px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            padding: 15px;
+            background-color: var(--code-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            resize: vertical;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .hint-btn {
+            background-color: transparent;
+            color: var(--secondary-color);
+            border: 1px solid var(--secondary-color);
+        }
+
+        .hint-btn:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .next-btn {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .next-btn:hover {
+            opacity: 0.9;
+        }
+
+        .feedback {
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .feedback.success {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .feedback.error {
+            background-color: rgba(244, 67, 54, 0.1);
+            border-left: 4px solid var(--error-color);
+        }
+
+        .feedback h3 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .completion-screen {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        .completion-screen h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--success-color);
+        }
+
+        .completion-screen p {
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .stat-item {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px var(--shadow);
+            min-width: 150px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .restart-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .restart-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            width: 100%;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            .game-info, .actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .stats {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-code"></i> Python Debug Challenge</h1>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </header>
+        
+        <div class="game-info">
+            <div class="level-info">
+                <h3>Nível <span id="currentLevel">1</span>/5</h3>
+                <p>Encontre e corrija o erro no código Python</p>
+            </div>
+            <div class="level-indicator">
+                <span>Progresso:</span>
+                <div class="level-dots" id="levelDots">
+                    <!-- Dots will be added by JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-area" id="gameArea">
+            <h2 id="problemTitle">Erro de Sintaxe</h2>
+            <div class="problem-description" id="problemDescription">
+                <!-- Problem description will be loaded here -->
+            </div>
+            
+            <div class="editor-container">
+                <div class="editor-header">
+                    <h3>Código com Erro:</h3>
+                    <button class="reset-btn" id="resetBtn">
+                        <i class="fas fa-redo"></i> Restaurar Código Original
+                    </button>
+                </div>
+                <textarea class="code-editor" id="codeEditor" spellcheck="false"></textarea>
+            </div>
+            
+            <div class="actions">
+                <button class="action-btn hint-btn" id="hintBtn">
+                    <i class="fas fa-lightbulb"></i> Dica
+                </button>
+                <button class="action-btn submit-btn" id="submitBtn">
+                    <i class="fas fa-check-circle"></i> Verificar Correção
+                </button>
+            </div>
+            
+            <div class="feedback" id="feedback">
+                <!-- Feedback will be shown here -->
+            </div>
+        </div>
+        
+        <div class="completion-screen" id="completionScreen">
+            <h2><i class="fas fa-trophy"></i> Parabéns!</h2>
+            <p>Você completou todos os níveis do Python Debug Challenge! Agora você está mais preparado para identificar e corrigir erros comuns em Python.</p>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="finalScore">0</div>
+                    <div>Pontuação</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="attemptsCount">0</div>
+                    <div>Tentativas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">5</div>
+                    <div>Níveis Completados</div>
+                </div>
+            </div>
+            
+            <button class="restart-btn" id="restartBtn">
+                <i class="fas fa-play"></i> Jogar Novamente
+            </button>
+        </div>
+        
+        <footer>
+            <p>Python Debug Challenge &copy; 2023 - Desenvolvido para praticar correção de erros em Python</p>
+        </footer>
+    </div>
+
+    <script>
+        // Game data - levels with problems and solutions
+        const gameLevels = [
+            {
+                title: "Erro de Sintaxe",
+                description: "O código abaixo deveria calcular a média de três números, mas contém um erro de sintaxe comum para iniciantes.",
+                initialCode: `def calcular_media(a, b, c)
+    soma = a + b + c
+    media = soma / 3
+    return media
+
+resultado = calcular_media(10, 20, 30)
+print("A média é: " + str(resultado)`,
+                correctCode: `def calcular_media(a, b, c):
+    soma = a + b + c
+    media = soma / 3
+    return media
+
+resultado = calcular_media(10, 20, 30)
+print("A média é: " + str(resultado))`,
+                hint: "Verifique se está faltando algum símbolo na definição da função.",
+                explanation: "Em Python, a definição de uma função deve terminar com dois pontos (:). O erro estava na linha `def calcular_media(a, b, c)` que deveria ser `def calcular_media(a, b, c):`."
+            },
+            {
+                title: "Erro de Indentação",
+                description: "Este código deveria verificar se um número é par ou ímpar, mas possui um erro de indentação.",
+                initialCode: `def verificar_par_impar(numero):
+if numero % 2 == 0:
+    return "Par"
+else:
+    return "Ímpar"
+
+print(verificar_par_impar(7))
+print(verificar_par_impar(10))`,
+                correctCode: `def verificar_par_impar(numero):
+    if numero % 2 == 0:
+        return "Par"
+    else:
+        return "Ímpar"
+
+print(verificar_par_impar(7))
+print(verificar_par_impar(10))`,
+                hint: "Em Python, a indentação é fundamental para definir blocos de código.",
+                explanation: "O código dentro de uma função deve estar indentado. A linha `if numero % 2 == 0:` deveria ter uma indentação de 4 espaços em relação à definição da função."
+            },
+            {
+                title: "Erro de Tipo (TypeError)",
+                description: "Este código tenta concatenar uma string com um número, resultando em um TypeError.",
+                initialCode: `idade = 25
+mensagem = "Eu tenho " + idade + " anos."
+print(mensagem)`,
+                correctCode: `idade = 25
+mensagem = "Eu tenho " + str(idade) + " anos."
+print(mensagem)`,
+                hint: "Em Python, não podemos concatenar strings com números diretamente.",
+                explanation: "Para concatenar uma string com um número, precisamos converter o número para string usando a função `str()`. O correto seria `\"Eu tenho \" + str(idade) + \" anos.\"`."
+            },
+            {
+                title: "Erro de Nome (NameError)",
+                description: "O código abaixo tenta usar uma variável que não foi definida, causando um NameError.",
+                initialCode: `def calcular_dobro(numero):
+    resultado = numero * 2
+    return resultado
+
+print(calcular_dobro(5))
+print("O dobro é: " + str(result))`,
+                correctCode: `def calcular_dobro(numero):
+    resultado = numero * 2
+    return resultado
+
+result = calcular_dobro(5)
+print("O dobro é: " + str(result))`,
+                hint: "A variável `result` está sendo usada, mas não foi definida no escopo global.",
+                explanation: "A variável `result` não foi definida no escopo global. Para corrigir, precisamos armazenar o retorno da função em uma variável: `result = calcular_dobro(5)` antes de usá-la no print."
+            },
+            {
+                title: "Erro de Índice (IndexError)",
+                description: "Este código tenta acessar um índice que não existe em uma lista.",
+                initialCode: `frutas = ["maçã", "banana", "laranja"]
+print(frutas[0])
+print(frutas[3])
+print(frutas[2])`,
+                correctCode: `frutas = ["maçã", "banana", "laranja"]
+print(frutas[0])
+print(frutas[2])
+print(frutas[1])`,
+                hint: "Lembre-se que índices em Python começam em 0, e o último índice de uma lista com 3 elementos é 2.",
+                explanation: "A lista `frutas` tem 3 elementos, com índices 0, 1 e 2. Tentar acessar `frutas[3]` causa um IndexError. O correto seria acessar `frutas[2]` para o último elemento."
+            }
+        ];
+
+        // Game state
+        let currentLevel = 0;
+        let score = 0;
+        let attempts = 0;
+        let completedLevels = 0;
+        let darkTheme = false;
+
+        // DOM elements
+        const themeToggle = document.getElementById('themeToggle');
+        const currentLevelElement = document.getElementById('currentLevel');
+        const levelDots = document.getElementById('levelDots');
+        const gameArea = document.getElementById('gameArea');
+        const completionScreen = document.getElementById('completionScreen');
+        const problemTitle = document.getElementById('problemTitle');
+        const problemDescription = document.getElementById('problemDescription');
+        const codeEditor = document.getElementById('codeEditor');
+        const resetBtn = document.getElementById('resetBtn');
+        const hintBtn = document.getElementById('hintBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const feedback = document.getElementById('feedback');
+        const finalScore = document.getElementById('finalScore');
+        const attemptsCount = document.getElementById('attemptsCount');
+        const restartBtn = document.getElementById('restartBtn');
+
+        // Initialize the game
+        function initGame() {
+            currentLevel = 0;
+            score = 0;
+            attempts = 0;
+            completedLevels = 0;
+            updateLevelDots();
+            loadLevel(currentLevel);
+            completionScreen.style.display = 'none';
+            gameArea.style.display = 'block';
+        }
+
+        // Update level dots visualization
+        function updateLevelDots() {
+            levelDots.innerHTML = '';
+            for (let i = 0; i < gameLevels.length; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'level-dot';
+                if (i === currentLevel) {
+                    dot.classList.add('active');
+                } else if (i < currentLevel) {
+                    dot.classList.add('completed');
+                }
+                levelDots.appendChild(dot);
+            }
+            currentLevelElement.textContent = currentLevel + 1;
+        }
+
+        // Load a specific level
+        function loadLevel(levelIndex) {
+            const level = gameLevels[levelIndex];
+            problemTitle.textContent = level.title;
+            problemDescription.textContent = level.description;
+            codeEditor.value = level.initialCode;
+            feedback.style.display = 'none';
+            updateLevelDots();
+            
+            // Change submit button text if it's the last level
+            if (levelIndex === gameLevels.length - 1) {
+                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verificar e Finalizar';
+            } else {
+                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verificar Correção';
+            }
+        }
+
+        // Show feedback message
+        function showFeedback(isSuccess, message) {
+            feedback.innerHTML = '';
+            feedback.className = 'feedback';
+            
+            const icon = document.createElement('i');
+            const title = document.createElement('h3');
+            const content = document.createElement('p');
+            
+            if (isSuccess) {
+                feedback.classList.add('success');
+                icon.className = 'fas fa-check-circle';
+                title.textContent = 'Correto!';
+                content.textContent = message;
+                
+                // Add next level button after a short delay
+                setTimeout(() => {
+                    const nextButton = document.createElement('button');
+                    nextButton.className = 'action-btn next-btn';
+                    nextButton.innerHTML = '<i class="fas fa-arrow-right"></i> Próximo Nível';
+                    nextButton.style.marginTop = '15px';
+                    nextButton.onclick = nextLevel;
+                    feedback.appendChild(nextButton);
+                }, 500);
+            } else {
+                feedback.classList.add('error');
+                icon.className = 'fas fa-times-circle';
+                title.textContent = 'Ainda não está correto';
+                content.textContent = message;
+            }
+            
+            title.prepend(icon);
+            feedback.appendChild(title);
+            feedback.appendChild(content);
+            feedback.style.display = 'block';
+        }
+
+        // Check the user's code
+        function checkCode() {
+            attempts++;
+            const userCode = codeEditor.value.trim();
+            const correctCode = gameLevels[currentLevel].correctCode.trim();
+            
+            // Simple comparison (in a real game, you might want more sophisticated checking)
+            if (userCode === correctCode) {
+                score += 100 - (attempts * 5);
+                if (score < 50) score = 50; // Minimum score
+                completedLevels++;
+                showFeedback(true, gameLevels[currentLevel].explanation);
+            } else {
+                showFeedback(false, "O código ainda contém erros. Tente novamente ou peça uma dica.");
+            }
+        }
+
+        // Move to the next level
+        function nextLevel() {
+            if (currentLevel < gameLevels.length - 1) {
+                currentLevel++;
+                attempts = 0;
+                loadLevel(currentLevel);
+            } else {
+                // Game completed
+                finalScore.textContent = score;
+                attemptsCount.textContent = attempts;
+                gameArea.style.display = 'none';
+                completionScreen.style.display = 'block';
+            }
+        }
+
+        // Show hint for current level
+        function showHint() {
+            feedback.innerHTML = '';
+            feedback.className = 'feedback';
+            feedback.classList.add('success');
+            
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-lightbulb';
+            
+            const title = document.createElement('h3');
+            title.textContent = 'Dica';
+            title.prepend(icon);
+            
+            const content = document.createElement('p');
+            content.textContent = gameLevels[currentLevel].hint;
+            
+            feedback.appendChild(title);
+            feedback.appendChild(content);
+            feedback.style.display = 'block';
+            
+            // Reduce score for using hint
+            score = Math.max(0, score - 10);
+        }
+
+        // Toggle theme
+        function toggleTheme() {
+            darkTheme = !darkTheme;
+            if (darkTheme) {
+                document.body.classList.add('dark-theme');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.body.classList.remove('dark-theme');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        }
+
+        // Event listeners
+        themeToggle.addEventListener('click', toggleTheme);
+        resetBtn.addEventListener('click', () => loadLevel(currentLevel));
+        hintBtn.addEventListener('click', showHint);
+        submitBtn.addEventListener('click', checkCode);
+        restartBtn.addEventListener('click', initGame);
+
+        // Initialize the game
+        initGame();
+
+        // Add some syntax highlighting simulation
+        codeEditor.addEventListener('input', function() {
+            // Simple visual feedback for code editing
+            this.style.borderColor = 'var(--primary-color)';
+        });
+    </script>
+</body>
+</html>
